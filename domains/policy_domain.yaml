@@ -1,0 +1,111 @@
+domain:
+  id: policy
+  name: Policy
+  description: >
+    Data describing insurance contracts, coverage conditions,
+    policy status and contractual relationships with customers.
+
+  business_purpose:
+    - Policy creation
+    - Coverage administration
+    - Premium calculation
+    - Contract servicing
+    - Renewal and termination
+    - Regulatory reporting
+
+  data_owner:
+    role: Head of Policy Administration
+    accountability: >
+      Accountable for the definition, quality, appropriate use
+      and regulatory compliance of policy data.
+
+  data_steward:
+    role: Policy Data Steward
+    responsibility: >
+      Maintains policy-data definitions, monitors data-quality
+      indicators and coordinates issue remediation.
+
+  data_custodians:
+    - Policy Administration Platform Manager
+    - Product Configuration Manager
+    - Integration Services Team
+
+  key_systems:
+    - Policy Administration System
+    - Product Catalogue
+    - Premium Calculation Engine
+    - Customer Portal
+    - Document Management System
+
+  critical_data_elements:
+    - name: Policy Identifier
+      definition: Unique identifier assigned to an insurance policy.
+      classification: Confidential
+      quality_dimension: Uniqueness
+      quality_rule: Each policy must have one unique policy identifier.
+
+    - name: Policyholder Identifier
+      definition: Identifier linking the policy to the responsible policyholder.
+      classification: Confidential
+      quality_dimension: Referential Integrity
+      quality_rule: Every active policy must reference a valid customer record.
+
+    - name: Policy Inception Date
+      definition: Date on which insurance coverage begins.
+      classification: Internal
+      quality_dimension: Validity
+      quality_rule: The inception date must be a valid calendar date.
+
+    - name: Policy Expiry Date
+      definition: Date on which the policy or coverage ends.
+      classification: Internal
+      quality_dimension: Consistency
+      quality_rule: The expiry date must not precede the inception date.
+
+    - name: Policy Status
+      definition: Current lifecycle status of the insurance policy.
+      classification: Internal
+      quality_dimension: Accuracy
+      quality_rule: Policy status must use an approved lifecycle value.
+
+    - name: Coverage Type
+      definition: Approved category of insurance coverage attached to the policy.
+      classification: Internal
+      quality_dimension: Validity
+      quality_rule: Coverage type must exist in the approved product catalogue.
+
+  primary_risks:
+    - Policies linked to invalid customer records
+    - Incorrect coverage dates
+    - Inconsistent policy status across systems
+    - Incorrect premium calculations
+    - Unauthorised modification of contract data
+    - Use of obsolete product definitions
+
+  governance_controls:
+    - Daily validation of policy-customer relationships
+    - Automated date-consistency checks
+    - Controlled policy-status reference values
+    - Quarterly review of policy-data quality
+    - Role-based access to policy modifications
+    - Formal approval of product and coverage definitions
+
+  governance_kpis:
+    - name: Policies linked to valid customers
+      target: "100%"
+
+    - name: Policies passing date-consistency controls
+      target: "99.5%"
+
+    - name: Approved policy definitions
+      target: "100%"
+
+    - name: High-severity issues resolved within target
+      target: "95%"
+
+  related_standards:
+    - Data Quality Standard
+    - Metadata Standard
+    - Data Classification Standard
+    - Data Access Standard
+    - Data Issue Management Standard

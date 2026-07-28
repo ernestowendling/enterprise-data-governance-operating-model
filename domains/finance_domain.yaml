@@ -1,0 +1,129 @@
+domain:
+  id: finance
+  name: Finance
+  description: >
+    Data used to record, manage and report the organisation's financial
+    transactions, premiums, claims payments, provider payments,
+    accounting balances and regulatory financial information.
+
+  business_purpose:
+    - Financial accounting
+    - Premium reconciliation
+    - Claims payment processing
+    - Provider payment processing
+    - Management reporting
+    - Financial planning and analysis
+    - Regulatory reporting
+    - Audit support
+
+  data_owner:
+    role: Chief Financial Officer
+    accountability: >
+      Accountable for the definition, quality, appropriate use,
+      regulatory compliance and integrity of enterprise finance data.
+
+  data_steward:
+    role: Finance Data Steward
+    responsibility: >
+      Maintains finance-data definitions, monitors data-quality
+      indicators, coordinates issue remediation and supports
+      financial governance reporting.
+
+  data_custodians:
+    - Finance Systems Manager
+    - General Ledger Platform Owner
+    - Payment Processing Team
+    - Financial Reporting Technology Team
+
+  key_systems:
+    - General Ledger System
+    - Accounts Payable Platform
+    - Accounts Receivable Platform
+    - Premium Billing System
+    - Claims Payment System
+    - Financial Reporting Platform
+
+  critical_data_elements:
+    - name: Transaction Identifier
+      definition: Unique identifier assigned to each financial transaction.
+      classification: Confidential
+      quality_dimension: Uniqueness
+      quality_rule: Each financial transaction must have one unique identifier.
+
+    - name: Accounting Date
+      definition: Date on which the transaction is recognised in the accounts.
+      classification: Internal
+      quality_dimension: Validity
+      quality_rule: The accounting date must be valid and fall within an open accounting period.
+
+    - name: Transaction Amount
+      definition: Monetary value recorded for a financial transaction.
+      classification: Confidential
+      quality_dimension: Accuracy
+      quality_rule: The transaction amount must reconcile with the underlying source record.
+
+    - name: Currency Code
+      definition: Approved currency associated with the financial transaction.
+      classification: Internal
+      quality_dimension: Validity
+      quality_rule: Currency code must use an approved ISO currency value.
+
+    - name: General Ledger Account
+      definition: Approved account used to classify the financial transaction.
+      classification: Internal
+      quality_dimension: Validity
+      quality_rule: The account must exist in the approved chart of accounts.
+
+    - name: Payment Status
+      definition: Current lifecycle status of an outgoing or incoming payment.
+      classification: Confidential
+      quality_dimension: Accuracy
+      quality_rule: Payment status must reflect the latest confirmed processing event.
+
+    - name: Financial Reporting Period
+      definition: Approved reporting period to which the transaction is assigned.
+      classification: Internal
+      quality_dimension: Consistency
+      quality_rule: The reporting period must be consistent with the accounting date.
+
+  primary_risks:
+    - Duplicate financial transactions
+    - Incorrect account classification
+    - Payments processed with invalid or outdated details
+    - Transactions recorded in closed accounting periods
+    - Unreconciled balances
+    - Inconsistent financial data across systems
+    - Unauthorised changes to financial records
+    - Inaccurate regulatory reporting
+
+  governance_controls:
+    - Daily duplicate-transaction monitoring
+    - Automated validation against the approved chart of accounts
+    - Period-end reconciliation controls
+    - Controlled approval of payment details
+    - Segregation of duties for financial-data changes
+    - Monthly review of finance-data quality indicators
+    - Formal escalation of unreconciled or high-value exceptions
+
+  governance_kpis:
+    - name: Transactions successfully reconciled
+      target: "99.5%"
+
+    - name: Transactions using valid ledger accounts
+      target: "100%"
+
+    - name: Duplicate transaction rate
+      target: "< 0.1%"
+
+    - name: Unresolved high-severity finance issues
+      target: "0"
+
+    - name: High-severity issues resolved within target
+      target: "95%"
+
+  related_standards:
+    - Data Quality Standard
+    - Metadata Standard
+    - Data Classification Standard
+    - Data Access Standard
+    - Data Issue Management Standard

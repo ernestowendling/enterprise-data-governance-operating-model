@@ -1,0 +1,118 @@
+domain:
+  id: provider
+  name: Healthcare Provider
+  description: >
+    Data describing healthcare professionals, hospitals, clinics,
+    laboratories and other service providers involved in customer care
+    and insurance reimbursement processes.
+
+  business_purpose:
+    - Provider onboarding
+    - Provider credential management
+    - Claims validation
+    - Contract management
+    - Reimbursement processing
+    - Provider performance monitoring
+    - Regulatory reporting
+
+  data_owner:
+    role: Head of Provider Management
+    accountability: >
+      Accountable for the definition, quality, appropriate use
+      and regulatory compliance of healthcare-provider data.
+
+  data_steward:
+    role: Provider Data Steward
+    responsibility: >
+      Maintains provider-data definitions, monitors data-quality
+      indicators and coordinates issue remediation.
+
+  data_custodians:
+    - Provider Management Platform Manager
+    - Contract Management System Owner
+    - Claims Integration Team
+
+  key_systems:
+    - Provider Management Platform
+    - Contract Management System
+    - Claims Management System
+    - Credential Verification Platform
+    - Payment Processing System
+
+  critical_data_elements:
+    - name: Provider Identifier
+      definition: Unique identifier assigned to each healthcare provider.
+      classification: Confidential
+      quality_dimension: Uniqueness
+      quality_rule: Each active provider must have one unique provider identifier.
+
+    - name: Provider Legal Name
+      definition: Official registered name of the healthcare provider.
+      classification: Internal
+      quality_dimension: Completeness
+      quality_rule: Every active provider must have a populated legal name.
+
+    - name: Provider Type
+      definition: Approved classification of the provider organisation or professional.
+      classification: Internal
+      quality_dimension: Validity
+      quality_rule: Provider type must use an approved reference value.
+
+    - name: Licence Status
+      definition: Current professional or institutional licence status.
+      classification: Confidential
+      quality_dimension: Accuracy
+      quality_rule: Active providers must have a valid and current licence status.
+
+    - name: Contract Status
+      definition: Current status of the commercial relationship with the provider.
+      classification: Confidential
+      quality_dimension: Validity
+      quality_rule: Contract status must use an approved lifecycle value.
+
+    - name: Payment Account Identifier
+      definition: Approved financial account used for provider reimbursements.
+      classification: Restricted
+      quality_dimension: Accuracy
+      quality_rule: Payment details must match the latest approved provider record.
+
+  primary_risks:
+    - Duplicate provider records
+    - Payments made to inactive or unlicensed providers
+    - Incorrect provider classifications
+    - Claims linked to invalid providers
+    - Unauthorised modification of payment details
+    - Inconsistent provider status across systems
+    - Outdated contractual information
+
+  governance_controls:
+    - Duplicate-provider monitoring
+    - Periodic licence-status validation
+    - Controlled approval of provider payment details
+    - Automated provider-reference validation in claims
+    - Quarterly review of provider-data quality
+    - Role-based access to sensitive provider information
+    - Formal escalation of provider-data exceptions
+
+  governance_kpis:
+    - name: Active providers with valid licences
+      target: "100%"
+
+    - name: Duplicate provider rate
+      target: "< 0.5%"
+
+    - name: Claims linked to valid providers
+      target: "99.8%"
+
+    - name: Provider records with approved payment details
+      target: "100%"
+
+    - name: High-severity issues resolved within target
+      target: "95%"
+
+  related_standards:
+    - Data Quality Standard
+    - Metadata Standard
+    - Data Classification Standard
+    - Data Access Standard
+    - Data Issue Management Standard

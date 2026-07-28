@@ -1,0 +1,120 @@
+domain:
+  id: claims
+  name: Claims
+  description: >
+    Data used to register, assess, process, approve and settle
+    insurance claims submitted by customers or healthcare providers.
+
+  business_purpose:
+    - Claims registration
+    - Eligibility assessment
+    - Coverage validation
+    - Reimbursement calculation
+    - Fraud detection
+    - Claims settlement
+    - Regulatory reporting
+
+  data_owner:
+    role: Head of Claims Management
+    accountability: >
+      Accountable for the definition, quality, appropriate use
+      and regulatory compliance of claims data.
+
+  data_steward:
+    role: Claims Data Steward
+    responsibility: >
+      Maintains claims-data definitions, monitors quality indicators,
+      coordinates remediation and supports governance reporting.
+
+  data_custodians:
+    - Claims Platform Manager
+    - Claims Operations Technology Team
+    - Payment Processing Team
+
+  key_systems:
+    - Claims Management System
+    - Policy Administration System
+    - Provider Management Platform
+    - Fraud Detection Platform
+    - Payment Processing System
+
+  critical_data_elements:
+    - name: Claim Identifier
+      definition: Unique identifier assigned to each insurance claim.
+      classification: Confidential
+      quality_dimension: Uniqueness
+      quality_rule: Each claim must have one unique claim identifier.
+
+    - name: Policy Identifier
+      definition: Identifier linking the claim to the relevant insurance policy.
+      classification: Confidential
+      quality_dimension: Referential Integrity
+      quality_rule: Every claim must reference a valid policy.
+
+    - name: Claim Submission Date
+      definition: Date on which the claim was received.
+      classification: Internal
+      quality_dimension: Validity
+      quality_rule: The submission date must be valid and must not be in the future.
+
+    - name: Treatment Date
+      definition: Date on which the healthcare service was provided.
+      classification: Sensitive Personal
+      quality_dimension: Consistency
+      quality_rule: The treatment date must not be later than the claim submission date.
+
+    - name: Claim Amount
+      definition: Monetary amount requested for reimbursement.
+      classification: Confidential
+      quality_dimension: Validity
+      quality_rule: The claim amount must be greater than or equal to zero.
+
+    - name: Approved Reimbursement Amount
+      definition: Amount approved for payment after claims assessment.
+      classification: Confidential
+      quality_dimension: Accuracy
+      quality_rule: The approved amount must not exceed the submitted claim amount.
+
+    - name: Claim Status
+      definition: Current lifecycle status of the claim.
+      classification: Internal
+      quality_dimension: Validity
+      quality_rule: Claim status must use an approved lifecycle value.
+
+  primary_risks:
+    - Duplicate claims
+    - Claims linked to invalid policies
+    - Incorrect reimbursement amounts
+    - Claims submitted outside the coverage period
+    - Unauthorised access to health-related information
+    - Inconsistent claim status across systems
+    - Fraudulent or suspicious claims
+
+  governance_controls:
+    - Daily duplicate-claim detection
+    - Automated policy-reference validation
+    - Date and coverage-period consistency checks
+    - Reimbursement amount validation
+    - Role-based access to sensitive claims data
+    - Formal escalation of high-value or high-risk exceptions
+    - Quarterly review of claims-data quality
+
+  governance_kpis:
+    - name: Claims linked to valid policies
+      target: "100%"
+
+    - name: Duplicate claim rate
+      target: "< 0.2%"
+
+    - name: Claims passing date-consistency checks
+      target: "99.5%"
+
+    - name: High-severity issues resolved within target
+      target: "95%"
+
+  related_standards:
+    - Data Quality Standard
+    - Metadata Standard
+    - Data Classification Standard
+    - Data Access Standard
+    - Data Issue Management Standard

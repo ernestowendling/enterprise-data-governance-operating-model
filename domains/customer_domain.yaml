@@ -1,0 +1,105 @@
+domain:
+  id: customer
+  name: Customer
+  description: >
+    Data used to identify, onboard, communicate with and provide services
+    to individual and corporate customers.
+
+  business_purpose:
+    - Customer onboarding
+    - Customer relationship management
+    - Identity verification
+    - Communication management
+    - Consent management
+    - Customer analytics
+
+  data_owner:
+    role: Head of Customer Management
+    accountability: >
+      Accountable for the quality, definition, appropriate use and
+      regulatory compliance of customer data.
+
+  data_steward:
+    role: Customer Data Steward
+    responsibility: >
+      Maintains business definitions, monitors data-quality issues,
+      coordinates remediation and supports governance reporting.
+
+  data_custodians:
+    - CRM Platform Manager
+    - Customer Master Data Manager
+    - Identity and Access Management Team
+
+  key_systems:
+    - Customer Relationship Management Platform
+    - Customer Master Data System
+    - Identity Verification Platform
+    - Consent Management Platform
+    - Customer Service Portal
+
+  critical_data_elements:
+    - name: Customer Identifier
+      definition: Unique identifier assigned to each customer.
+      classification: Confidential
+      quality_dimension: Uniqueness
+      quality_rule: Each active customer must have one unique identifier.
+
+    - name: Full Legal Name
+      definition: Official first name and surname of the customer.
+      classification: Personal
+      quality_dimension: Completeness
+      quality_rule: The legal name must be populated for every active customer.
+
+    - name: Date of Birth
+      definition: Official date of birth of an individual customer.
+      classification: Sensitive Personal
+      quality_dimension: Validity
+      quality_rule: The date must be valid and must not be in the future.
+
+    - name: Residential Address
+      definition: Current registered residential address of the customer.
+      classification: Personal
+      quality_dimension: Completeness
+      quality_rule: An active customer must have a current address.
+
+    - name: Consent Status
+      definition: Current status of the customer consent record.
+      classification: Confidential
+      quality_dimension: Accuracy
+      quality_rule: Consent status must match the latest recorded customer decision.
+
+  primary_risks:
+    - Incorrect customer identification
+    - Duplicate customer records
+    - Unauthorised use of personal data
+    - Outdated customer information
+    - Missing or invalid consent records
+    - Inconsistent customer definitions across systems
+
+  governance_controls:
+    - Monthly duplicate-customer monitoring
+    - Mandatory ownership assignment for critical data elements
+    - Quarterly review of customer-data quality indicators
+    - Role-based access controls
+    - Annual review of customer-data definitions
+    - Formal escalation of high-severity data-quality issues
+
+  governance_kpis:
+    - name: Customer record completeness
+      target: "98%"
+
+    - name: Duplicate customer rate
+      target: "< 0.5%"
+
+    - name: Critical elements with approved definitions
+      target: "100%"
+
+    - name: High-severity issues resolved within target
+      target: "95%"
+
+  related_standards:
+    - Data Quality Standard
+    - Metadata Standard
+    - Data Classification Standard
+    - Data Access Standard
+    - Data Issue Management Standard
