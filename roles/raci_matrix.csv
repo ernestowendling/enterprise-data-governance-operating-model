@@ -1,0 +1,66 @@
+activity,chief_data_officer,data_governance_council,data_owner,data_steward,data_custodian,data_protection,compliance,information_security,data_architecture,data_ai_centre_of_excellence,business_subject_matter_experts
+Approve Enterprise Data Governance Charter,R,A,C,C,I,C,C,C,C,C,I
+Approve enterprise governance principles,R,A,C,C,I,C,C,C,C,C,I
+Approve enterprise governance standards,R,A,C,C,C,C,C,C,C,C,I
+Appoint Data Owner,R,A,I,I,I,I,I,I,I,I,I
+Appoint Data Steward,C,I,A,R,I,I,I,I,I,I,C
+Define data-domain scope,C,C,A,R,C,C,C,C,C,I,C
+Maintain data-domain register,A,I,C,R,I,I,I,I,C,C,I
+Approve domain business definition,I,I,A,R,C,C,C,I,C,I,C
+Resolve cross-domain definition conflict,R,A,C,R,I,C,C,I,C,I,C
+Maintain business glossary,I,I,A,R,C,C,C,I,C,C,C
+Identify critical data element,I,I,A,R,C,C,C,C,C,I,C
+Approve critical data element,I,I,A,R,C,C,C,C,C,I,C
+Maintain critical data-element inventory,I,I,A,R,C,I,I,I,C,C,C
+Define data-quality requirement,I,I,A,R,C,C,C,C,C,I,C
+Approve domain data-quality rule,I,I,A,R,C,C,C,C,C,I,C
+Implement automated data-quality rule,I,I,A,C,R,I,I,C,C,C,I
+Execute data-quality control,I,I,A,C,R,I,I,C,I,C,I
+Review data-quality performance,I,I,A,R,C,C,C,C,C,C,C
+Record data-quality issue,I,I,A,R,C,I,I,I,I,I,C
+Assess data-issue severity,I,I,A,R,C,C,C,C,C,I,C
+Approve high-severity issue classification,I,I,A,R,C,C,C,C,C,I,I
+Assign remediation action,I,I,A,R,C,I,I,I,I,I,C
+Implement technical remediation,I,I,C,R,A,I,I,C,C,C,I
+Validate remediation result,I,I,A,R,C,C,C,C,C,C,C
+Approve closure of material data issue,I,I,A,R,C,C,C,C,C,I,I
+Escalate unresolved domain issue,I,C,A,R,C,C,C,C,C,I,I
+Resolve material cross-domain issue,R,A,C,R,C,C,C,C,C,C,I
+Classify data asset,I,I,A,R,C,C,C,C,C,I,C
+Approve data-classification standard,R,A,C,C,C,C,C,C,C,C,I
+Implement classification-based controls,I,I,A,C,R,C,I,C,I,I,I
+Approve standard data-access request,I,I,A,R,C,C,C,C,I,I,I
+Implement approved data access,I,I,A,C,R,I,I,C,I,I,I
+Review privileged or sensitive access,I,I,A,R,C,C,C,C,I,I,C
+Revoke inappropriate or expired access,I,I,A,C,R,I,I,C,I,I,I
+Define data-retention requirement,I,I,A,R,C,C,C,C,I,I,C
+Implement approved retention configuration,I,I,A,C,R,C,C,C,C,I,I
+Approve data deletion or disposal,I,I,A,R,C,C,C,C,I,I,I
+Execute approved deletion or disposal,I,I,A,C,R,C,I,C,I,I,I
+Document technical metadata,I,I,C,R,A,I,I,I,C,C,C
+Document business metadata,I,I,A,R,C,C,C,I,C,C,C
+Document data lineage,I,I,C,R,R,C,C,C,A,C,C
+Approve material governance exception,R,A,C,R,C,C,C,C,C,C,I
+Approve low-risk domain exception,I,I,A,R,C,C,C,C,C,I,I
+Maintain governance exception register,A,I,C,R,I,C,C,C,I,I,I
+Review expired governance exception,R,A,C,R,C,C,C,C,C,I,I
+Assess governance maturity,A,C,C,R,C,C,C,C,C,C,C
+Approve governance improvement priorities,R,A,C,C,C,C,C,C,C,C,I
+Define governance KPI,I,C,A,R,C,C,C,C,C,C,C
+Produce domain governance KPI report,I,I,A,R,C,I,I,I,I,C,I
+Review enterprise governance performance,R,A,C,C,I,C,C,C,C,C,I
+Prepare Data Governance Council materials,A,I,C,R,I,C,C,C,C,C,I
+Record Data Governance Council decision,A,I,C,R,I,I,I,I,I,I,I
+Maintain governance decision log,A,I,C,R,I,I,I,I,I,I,I
+Assess data readiness for analytics use case,I,I,A,R,C,C,C,C,C,C,C
+Assess data readiness for AI use case,I,I,A,R,C,C,C,C,C,C,C
+Approve material AI data use,I,C,A,R,C,C,C,C,C,C,I
+Implement approved AI data controls,I,I,C,C,A,C,C,C,C,R,I
+Monitor AI data-quality limitations,I,I,A,R,C,C,C,C,C,R,C
+Approve external data-sharing arrangement,I,C,A,R,C,C,C,C,C,I,I
+Implement approved data-transfer control,I,I,A,C,R,C,C,C,C,I,I
+Review third-party data-governance evidence,I,I,A,R,C,C,C,C,C,I,I
+Deliver Data Governance training,C,I,A,R,I,C,C,C,I,C,I
+Maintain governance training material,A,I,C,R,I,C,C,C,I,C,I
+Review Data Governance role assignments,A,C,C,R,I,I,I,I,I,I,I
+Review Data Governance framework annually,R,A,C,C,C,C,C,C,C,C,I
