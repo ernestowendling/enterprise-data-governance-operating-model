@@ -13,6 +13,8 @@ RACI_FILE = PROJECT_ROOT / "roles" / "raci_matrix.csv"
 
 GLOSSARY_FILE = PROJECT_ROOT / "glossary" / "business_glossary.csv"
 
+DATA_QUALITY_RULES_FILE = PROJECT_ROOT / "data" / "data_quality_rules.csv"
+
 EXPECTED_DOMAIN_FILES = {
     "customer_domain.yaml",
     "policy_domain.yaml",
@@ -115,6 +117,63 @@ VALID_QUALITY_DIMENSIONS = {
     "Validity",
 }
 
+EXPECTED_DATA_QUALITY_RULE_COLUMNS = {
+    "rule_id",
+    "rule_name",
+    "data_domain",
+    "business_term",
+    "quality_dimension",
+    "rule_logic",
+    "target_percentage",
+    "warning_threshold_percentage",
+    "critical_threshold_percentage",
+    "frequency",
+    "data_owner",
+    "data_steward",
+    "data_custodian",
+    "failure_severity",
+    "status",
+}
+
+EXPECTED_DATA_QUALITY_RULE_DOMAINS = {
+    "Customer",
+    "Policy",
+    "Claims",
+    "Healthcare Provider",
+    "Finance",
+}
+
+VALID_DATA_QUALITY_RULE_PREFIXES = {
+    "CUSTOMER",
+    "POLICY",
+    "CLAIMS",
+    "PROVIDER",
+    "FINANCE",
+}
+
+VALID_DATA_QUALITY_FREQUENCIES = {
+    "Real-time",
+    "Event-driven",
+    "Daily",
+    "Weekly",
+    "Monthly",
+    "Quarterly",
+    "Annual",
+}
+
+VALID_FAILURE_SEVERITIES = {
+    "Low",
+    "Medium",
+    "High",
+}
+
+VALID_DATA_QUALITY_RULE_STATUSES = {
+    "Draft",
+    "Active",
+    "Suspended",
+    "Retired",
+}
+
 EXPECTED_STANDARD_FILES = {
     "metadata_standard.md",
     "data_quality_standard.md",
@@ -208,6 +267,43 @@ def load_glossary_rows() -> tuple[
         reader = csv.DictReader(file)
 
         assert reader.fieldnames is not None, "The business glossary has no header."
+
+        columns = [column.strip() for column in reader.fieldnames]
+
+        rows = []
+
+        for raw_row in reader:
+            cleaned_row = {
+                key.strip(): value.strip()
+                for key, value in raw_row.items()
+                if key is not None
+            }
+
+            rows.append(cleaned_row)
+
+    return columns, rows
+
+
+def load_data_quality_rule_rows() -> tuple[
+    list[str],
+    list[dict[str, str]],
+]:
+    """Load the Data Quality Rules Register."""
+
+    assert (
+        DATA_QUALITY_RULES_FILE.exists()
+    ), "The Data Quality Rules Register does not exist."
+
+    with DATA_QUALITY_RULES_FILE.open(
+        "r",
+        encoding="utf-8-sig",
+        newline="",
+    ) as file:
+        reader = csv.DictReader(file)
+
+        assert (
+            reader.fieldnames is not None
+        ), "The Data Quality Rules Register has no header."
 
         columns = [column.strip() for column in reader.fieldnames]
 
@@ -858,3 +954,145 @@ def test_governance_workflows_include_disclaimer() -> None:
         assert required_phrase in content, (
             f"{workflow_name} does not include " "the portfolio disclaimer."
         )
+
+
+def test_data_quality_rules_have_expected_columns() -> None:
+    """Verify the structure of the rules register."""
+
+    columns, _ = load_data_quality_rule_rows()
+
+    assert set(columns) == EXPECTED_DATA_QUALITY_RULE_COLUMNS
+
+
+def test_data_quality_rules_contain_twenty_rules() -> None:
+    """Verify that the register contains twenty rules."""
+
+    _, rows = load_data_quality_rule_rows()
+
+    assert len(rows) == 20, (
+        "The Data Quality Rules Register must " "contain exactly 20 rules."
+    )
+
+
+def test_data_quality_rule_ids_are_unique_and_valid() -> None:
+    """Verify that rule identifiers are unique and well formed."""
+
+    _, rows = load_data_quality_rule_rows()
+
+    rule_ids = [row["rule_id"] for row in rows]
+
+    assert len(rule_ids) == len(
+        set(rule_ids)
+    ), "The register contains duplicate rule identifiers."
+
+    for rule_id in rule_ids:
+        parts = rule_id.split("-")
+
+        assert len(parts) == 3, f"Invalid rule identifier: {rule_id}"
+
+        assert parts[0] == "DQ", f"Rule identifier must begin with DQ: {rule_id}"
+
+        assert (
+            parts[1] in VALID_DATA_QUALITY_RULE_PREFIXES
+        ), f"Invalid domain prefix in rule identifier: {rule_id}"
+
+        assert (
+            len(parts[2]) == 3 and parts[2].isdigit()
+        ), f"Invalid numeric suffix in rule identifier: {rule_id}"
+
+
+def test_data_quality_rules_have_complete_metadata() -> None:
+    """Verify that every rule has complete mandatory metadata."""
+
+    _, rows = load_data_quality_rule_rows()
+
+    for row_number, row in enumerate(
+        rows,
+        start=2,
+    ):
+        empty_fields = [
+            column
+            for column in EXPECTED_DATA_QUALITY_RULE_COLUMNS
+            if not row.get(column)
+        ]
+
+        assert not empty_fields, (
+            f"Data Quality Rule row {row_number} "
+            f"is missing values in: {sorted(empty_fields)}"
+        )
+
+
+def test_data_quality_rules_use_controlled_values() -> None:
+    """Verify domains and controlled values."""
+
+    _, rows = load_data_quality_rule_rows()
+
+    for row in rows:
+        assert row["data_domain"] in EXPECTED_DATA_QUALITY_RULE_DOMAINS
+
+        assert row["quality_dimension"] in VALID_QUALITY_DIMENSIONS
+
+        assert row["frequency"] in VALID_DATA_QUALITY_FREQUENCIES
+
+        assert row["failure_severity"] in VALID_FAILURE_SEVERITIES
+
+        assert row["status"] in VALID_DATA_QUALITY_RULE_STATUSES
+
+
+def test_data_quality_rule_thresholds_are_valid() -> None:
+    """Verify percentage bounds and threshold ordering."""
+
+    _, rows = load_data_quality_rule_rows()
+
+    for row in rows:
+        target = float(row["target_percentage"])
+        warning = float(row["warning_threshold_percentage"])
+        critical = float(row["critical_threshold_percentage"])
+
+        assert 0 <= critical <= 100
+        assert 0 <= warning <= 100
+        assert 0 <= target <= 100
+
+        assert (
+            target >= warning >= critical
+        ), f"{row['rule_id']} has invalid threshold ordering."
+
+
+def test_each_domain_has_exactly_four_quality_rules() -> None:
+    """Verify balanced rule coverage across all domains."""
+
+    _, rows = load_data_quality_rule_rows()
+
+    domain_counts = {domain: 0 for domain in EXPECTED_DATA_QUALITY_RULE_DOMAINS}
+
+    for row in rows:
+        domain_counts[row["data_domain"]] += 1
+
+    assert set(domain_counts) == (EXPECTED_DATA_QUALITY_RULE_DOMAINS)
+
+    for domain, count in domain_counts.items():
+        assert count == 4, (
+            f"{domain} must contain exactly four "
+            f"Data Quality Rules, but contains {count}."
+        )
+
+
+def test_data_quality_rules_reference_glossary_terms() -> None:
+    """Verify that every governed term exists in the glossary."""
+
+    _, rule_rows = load_data_quality_rule_rows()
+    _, glossary_rows = load_glossary_rows()
+
+    glossary_terms = {row["business_term"].casefold() for row in glossary_rows}
+
+    missing_terms = {
+        row["business_term"]
+        for row in rule_rows
+        if row["business_term"].casefold() not in glossary_terms
+    }
+
+    assert not missing_terms, (
+        "The following Data Quality Rule terms are "
+        "missing from the business glossary: "
+        f"{sorted(missing_terms)}"
+    )
