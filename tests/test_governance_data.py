@@ -20,6 +20,8 @@ GOVERNANCE_ISSUES_FILE = PROJECT_ROOT / "data" / "governance_issues.csv"
 
 ACCESS_EXCEPTIONS_FILE = PROJECT_ROOT / "data" / "access_exceptions.csv"
 
+AI_USE_CASES_FILE = PROJECT_ROOT / "data" / "ai_use_cases.csv"
+
 EXPECTED_DOMAIN_FILES = {
     "customer_domain.yaml",
     "policy_domain.yaml",
@@ -360,6 +362,97 @@ ACCESS_STATUSES_REQUIRING_REVIEW = {
     "Revocation Pending",
 }
 
+EXPECTED_AI_USE_CASE_COLUMNS = {
+    "use_case_id",
+    "use_case_name",
+    "business_purpose",
+    "business_owner",
+    "ai_risk_tier",
+    "primary_domain",
+    "additional_domains",
+    "degree_of_automation",
+    "intended_users",
+    "data_classification",
+    "personal_data",
+    "sensitive_personal_data",
+    "restricted_data",
+    "external_processing",
+    "data_sources",
+    "dataset_version",
+    "data_owner",
+    "data_steward",
+    "data_custodian",
+    "lineage_status",
+    "data_quality_status",
+    "human_oversight",
+    "monitoring_frequency",
+    "readiness_score",
+    "approval_decision",
+    "status",
+    "approval_date",
+    "next_review_date",
+    "related_issue_id",
+}
+
+VALID_AI_RISK_TIERS = {
+    "Tier 1",
+    "Tier 2",
+    "Tier 3",
+}
+
+VALID_AUTOMATION_LEVELS = {
+    "Advisory",
+    "Partially Automated",
+    "Automated",
+}
+
+VALID_AI_BOOLEAN_VALUES = {
+    "Yes",
+    "No",
+}
+
+VALID_LINEAGE_STATUSES = {
+    "Complete",
+    "Partial",
+    "Missing",
+}
+
+VALID_AI_DATA_QUALITY_STATUSES = {
+    "Green",
+    "Amber",
+    "Red",
+}
+
+VALID_AI_MONITORING_FREQUENCIES = {
+    "Real-time",
+    "Daily",
+    "Weekly",
+    "Monthly",
+    "Quarterly",
+    "Annual",
+}
+
+VALID_AI_APPROVAL_DECISIONS = {
+    "Ready",
+    "Conditionally Ready",
+    "Not Ready",
+}
+
+VALID_AI_USE_CASE_STATUSES = {
+    "Draft",
+    "Under Triage",
+    "Under Assessment",
+    "Information Required",
+    "Specialist Review",
+    "Remediation Required",
+    "Awaiting Approval",
+    "Ready",
+    "Conditionally Ready",
+    "Not Ready",
+    "Suspended",
+    "Retired",
+}
+
 EXPECTED_STANDARD_FILES = {
     "metadata_standard.md",
     "data_quality_standard.md",
@@ -564,6 +657,39 @@ def load_access_exception_rows() -> tuple[
         assert reader.fieldnames is not None, (
             "The Data Access Exceptions Register " "has no header."
         )
+
+        columns = [column.strip() for column in reader.fieldnames]
+
+        rows = []
+
+        for raw_row in reader:
+            cleaned_row = {
+                key.strip(): value.strip()
+                for key, value in raw_row.items()
+                if key is not None
+            }
+
+            rows.append(cleaned_row)
+
+    return columns, rows
+
+
+def load_ai_use_case_rows() -> tuple[
+    list[str],
+    list[dict[str, str]],
+]:
+    """Load the AI Use Cases Register."""
+
+    assert AI_USE_CASES_FILE.exists(), "The AI Use Cases Register does not exist."
+
+    with AI_USE_CASES_FILE.open(
+        "r",
+        encoding="utf-8-sig",
+        newline="",
+    ) as file:
+        reader = csv.DictReader(file)
+
+        assert reader.fieldnames is not None, "The AI Use Cases Register has no header."
 
         columns = [column.strip() for column in reader.fieldnames]
 
@@ -1901,5 +2027,377 @@ def test_access_exceptions_cover_all_operational_domains() -> None:
 
     assert not missing_domains, (
         "The Access Exceptions Register does not cover "
+        f"these domains: {sorted(missing_domains)}"
+    )
+
+
+def test_ai_use_cases_have_expected_columns() -> None:
+    """Verify the structure of the AI Use Cases Register."""
+
+    columns, _ = load_ai_use_case_rows()
+
+    assert len(columns) == len(set(columns)), (
+        "The AI Use Cases Register has " "duplicate column names."
+    )
+
+    assert set(columns) == EXPECTED_AI_USE_CASE_COLUMNS
+
+
+def test_ai_use_cases_contain_six_records() -> None:
+    """Verify that the register contains six use cases."""
+
+    _, rows = load_ai_use_case_rows()
+
+    assert len(rows) == 6, (
+        "The AI Use Cases Register must " "contain exactly 6 use cases."
+    )
+
+
+def test_ai_use_case_ids_are_unique_and_sequential() -> None:
+    """Verify identifiers and unique use-case metadata."""
+
+    _, rows = load_ai_use_case_rows()
+
+    actual_ids = [row["use_case_id"] for row in rows]
+
+    expected_ids = [
+        f"AI-UC-2026-{number:03d}"
+        for number in range(
+            1,
+            len(rows) + 1,
+        )
+    ]
+
+    use_case_names = [row["use_case_name"].casefold() for row in rows]
+
+    dataset_versions = [row["dataset_version"] for row in rows]
+
+    assert len(actual_ids) == len(
+        set(actual_ids)
+    ), "The register contains duplicate AI Use Case IDs."
+
+    assert actual_ids == expected_ids, (
+        "AI Use Case IDs must be sequential and use " "the AI-UC-2026-001 format."
+    )
+
+    assert len(use_case_names) == len(
+        set(use_case_names)
+    ), "The register contains duplicate use-case names."
+
+    assert len(dataset_versions) == len(
+        set(dataset_versions)
+    ), "The register contains duplicate dataset versions."
+
+
+def test_ai_use_cases_have_complete_metadata() -> None:
+    """Verify that mandatory use-case metadata is populated."""
+
+    _, rows = load_ai_use_case_rows()
+
+    optional_fields = {
+        "additional_domains",
+        "approval_date",
+        "related_issue_id",
+    }
+
+    required_fields = EXPECTED_AI_USE_CASE_COLUMNS - optional_fields
+
+    for row_number, row in enumerate(
+        rows,
+        start=2,
+    ):
+        empty_fields = [field for field in required_fields if not row.get(field)]
+
+        assert not empty_fields, (
+            f"AI use-case row {row_number} "
+            f"is missing values in: {sorted(empty_fields)}"
+        )
+
+
+def test_ai_use_cases_use_controlled_values() -> None:
+    """Verify controlled AI use-case metadata values."""
+
+    _, rows = load_ai_use_case_rows()
+
+    for row in rows:
+        use_case_id = row["use_case_id"]
+
+        assert (
+            row["ai_risk_tier"] in VALID_AI_RISK_TIERS
+        ), f"{use_case_id} has an invalid AI risk tier."
+
+        assert (
+            row["primary_domain"] in REQUIRED_OPERATIONAL_DOMAINS
+        ), f"{use_case_id} has an invalid primary domain."
+
+        additional_domain = row["additional_domains"]
+
+        if additional_domain:
+            assert additional_domain in REQUIRED_OPERATIONAL_DOMAINS, (
+                f"{use_case_id} has an invalid " "additional domain."
+            )
+
+            assert additional_domain != row["primary_domain"], (
+                f"{use_case_id} repeats its primary " "domain as an additional domain."
+            )
+
+        assert row["degree_of_automation"] in VALID_AUTOMATION_LEVELS, (
+            f"{use_case_id} has an invalid " "degree of automation."
+        )
+
+        assert row["data_classification"] in VALID_SENSITIVITY_VALUES, (
+            f"{use_case_id} has an invalid " "data classification."
+        )
+
+        boolean_fields = {
+            "personal_data",
+            "sensitive_personal_data",
+            "restricted_data",
+            "external_processing",
+        }
+
+        for field in boolean_fields:
+            assert row[field] in VALID_AI_BOOLEAN_VALUES, (
+                f"{use_case_id} has an invalid " f"{field} value."
+            )
+
+        assert row["lineage_status"] in VALID_LINEAGE_STATUSES, (
+            f"{use_case_id} has an invalid " "lineage status."
+        )
+
+        assert row["data_quality_status"] in VALID_AI_DATA_QUALITY_STATUSES, (
+            f"{use_case_id} has an invalid " "data-quality status."
+        )
+
+        assert row["monitoring_frequency"] in VALID_AI_MONITORING_FREQUENCIES, (
+            f"{use_case_id} has an invalid " "monitoring frequency."
+        )
+
+        assert row["approval_decision"] in VALID_AI_APPROVAL_DECISIONS, (
+            f"{use_case_id} has an invalid " "approval decision."
+        )
+
+        assert (
+            row["status"] in VALID_AI_USE_CASE_STATUSES
+        ), f"{use_case_id} has an invalid status."
+
+
+def test_ai_use_case_dates_are_valid() -> None:
+    """Verify ISO dates and review-date ordering."""
+
+    _, rows = load_ai_use_case_rows()
+
+    for row in rows:
+        use_case_id = row["use_case_id"]
+
+        try:
+            next_review_date = date.fromisoformat(row["next_review_date"])
+        except ValueError as error:
+            raise AssertionError(
+                f"{use_case_id} has an invalid "
+                f"next review date: "
+                f"{row['next_review_date']}"
+            ) from error
+
+        approval_date_value = row["approval_date"]
+
+        if approval_date_value:
+            try:
+                approval_date = date.fromisoformat(approval_date_value)
+            except ValueError as error:
+                raise AssertionError(
+                    f"{use_case_id} has an invalid "
+                    f"approval date: {approval_date_value}"
+                ) from error
+
+            assert next_review_date >= approval_date, (
+                f"{use_case_id} has a next review date " "before its approval date."
+            )
+
+
+def test_ai_use_case_decisions_match_statuses() -> None:
+    """Verify approval decisions and lifecycle statuses."""
+
+    _, rows = load_ai_use_case_rows()
+
+    for row in rows:
+        use_case_id = row["use_case_id"]
+        decision = row["approval_decision"]
+        status = row["status"]
+
+        if status == "Ready":
+            assert decision == "Ready", (
+                f"{use_case_id} is Ready but has " f"decision '{decision}'."
+            )
+
+            assert row["approval_date"], (
+                f"{use_case_id} is Ready but has " "no approval date."
+            )
+
+        if status == "Conditionally Ready":
+            assert decision == "Conditionally Ready", (
+                f"{use_case_id} is Conditionally Ready "
+                f"but has decision '{decision}'."
+            )
+
+            assert row["approval_date"], (
+                f"{use_case_id} is Conditionally Ready " "but has no approval date."
+            )
+
+        if status == "Not Ready":
+            assert decision == "Not Ready", (
+                f"{use_case_id} is Not Ready but has " f"decision '{decision}'."
+            )
+
+            assert not row["approval_date"], (
+                f"{use_case_id} is Not Ready but has " "an approval date."
+            )
+
+        if status == "Suspended":
+            assert decision == "Not Ready", (
+                f"{use_case_id} is Suspended but does " "not have a Not Ready decision."
+            )
+
+            assert row["approval_date"], (
+                f"{use_case_id} is Suspended but has " "no previous approval date."
+            )
+
+
+def test_ai_readiness_scores_match_decisions() -> None:
+    """Verify readiness-score ranges and quality outcomes."""
+
+    _, rows = load_ai_use_case_rows()
+
+    for row in rows:
+        use_case_id = row["use_case_id"]
+
+        try:
+            score = float(row["readiness_score"])
+        except ValueError as error:
+            raise AssertionError(
+                f"{use_case_id} has an invalid "
+                f"readiness score: {row['readiness_score']}"
+            ) from error
+
+        assert 0 <= score <= 100, (
+            f"{use_case_id} has a readiness score " "outside the 0 to 100 range."
+        )
+
+        decision = row["approval_decision"]
+        quality_status = row["data_quality_status"]
+
+        if decision == "Ready":
+            assert score >= 85, f"{use_case_id} is Ready but its " "score is below 85."
+
+            assert quality_status != "Red", (
+                f"{use_case_id} is Ready despite " "a Red data-quality status."
+            )
+
+        elif decision == "Conditionally Ready":
+            assert 70 <= score < 85, (
+                f"{use_case_id} is Conditionally Ready "
+                "but its score is outside 70 to 84.99."
+            )
+
+            assert quality_status != "Red", (
+                f"{use_case_id} is Conditionally Ready "
+                "despite a Red data-quality status."
+            )
+
+        elif decision == "Not Ready":
+            assert score < 70, (
+                f"{use_case_id} is Not Ready but its " "score is not below 70."
+            )
+
+            assert quality_status == "Red", (
+                f"{use_case_id} is Not Ready but does "
+                "not have a Red data-quality status."
+            )
+
+
+def test_ai_data_classification_matches_flags() -> None:
+    """Verify classification and personal-data indicators."""
+
+    _, rows = load_ai_use_case_rows()
+
+    for row in rows:
+        use_case_id = row["use_case_id"]
+        classification = row["data_classification"]
+
+        if row["sensitive_personal_data"] == "Yes":
+            assert row["personal_data"] == "Yes", (
+                f"{use_case_id} uses Sensitive Personal "
+                "data but personal_data is not Yes."
+            )
+
+        if classification == "Sensitive Personal":
+            assert row["personal_data"] == "Yes", (
+                f"{use_case_id} is classified as "
+                "Sensitive Personal but personal_data "
+                "is not Yes."
+            )
+
+            assert row["sensitive_personal_data"] == "Yes", (
+                f"{use_case_id} is classified as "
+                "Sensitive Personal but the sensitive "
+                "data flag is not Yes."
+            )
+
+        if classification == "Restricted":
+            assert row["restricted_data"] == "Yes", (
+                f"{use_case_id} is Restricted but " "restricted_data is not Yes."
+            )
+
+        if row["restricted_data"] == "Yes":
+            assert classification == "Restricted", (
+                f"{use_case_id} has restricted_data Yes "
+                "but is not classified as Restricted."
+            )
+
+        if row["ai_risk_tier"] == "Tier 1":
+            assert row["sensitive_personal_data"] == "No", (
+                f"{use_case_id} is Tier 1 but uses " "Sensitive Personal data."
+            )
+
+            assert row["restricted_data"] == "No", (
+                f"{use_case_id} is Tier 1 but uses " "Restricted data."
+            )
+
+
+def test_ai_use_cases_reference_valid_issues() -> None:
+    """Verify linked Governance Issue references."""
+
+    _, use_case_rows = load_ai_use_case_rows()
+    _, issue_rows = load_governance_issue_rows()
+
+    valid_issue_ids = {row["issue_id"] for row in issue_rows}
+
+    invalid_references = {
+        row["related_issue_id"]
+        for row in use_case_rows
+        if row["related_issue_id"] and row["related_issue_id"] not in valid_issue_ids
+    }
+
+    assert not invalid_references, (
+        "The following related Governance Issues "
+        f"do not exist: {sorted(invalid_references)}"
+    )
+
+
+def test_ai_use_cases_cover_all_operational_domains() -> None:
+    """Verify AI use-case coverage across all domains."""
+
+    _, rows = load_ai_use_case_rows()
+
+    represented_domains = {row["primary_domain"] for row in rows}
+
+    represented_domains.update(
+        row["additional_domains"] for row in rows if row["additional_domains"]
+    )
+
+    missing_domains = REQUIRED_OPERATIONAL_DOMAINS - represented_domains
+
+    assert not missing_domains, (
+        "The AI Use Cases Register does not cover "
         f"these domains: {sorted(missing_domains)}"
     )
