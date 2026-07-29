@@ -2401,3 +2401,89 @@ def test_ai_use_cases_cover_all_operational_domains() -> None:
         "The AI Use Cases Register does not cover "
         f"these domains: {sorted(missing_domains)}"
     )
+
+
+@pytest.mark.parametrize(
+    (
+        "register_name",
+        "file_path",
+        "expected_columns",
+    ),
+    [
+        (
+            "Business Glossary",
+            GLOSSARY_FILE,
+            EXPECTED_GLOSSARY_COLUMNS,
+        ),
+        (
+            "Data Quality Rules Register",
+            DATA_QUALITY_RULES_FILE,
+            EXPECTED_DATA_QUALITY_RULE_COLUMNS,
+        ),
+        (
+            "Governance Issues Register",
+            GOVERNANCE_ISSUES_FILE,
+            EXPECTED_GOVERNANCE_ISSUE_COLUMNS,
+        ),
+        (
+            "Access Exceptions Register",
+            ACCESS_EXCEPTIONS_FILE,
+            EXPECTED_ACCESS_EXCEPTION_COLUMNS,
+        ),
+        (
+            "AI Use Cases Register",
+            AI_USE_CASES_FILE,
+            EXPECTED_AI_USE_CASE_COLUMNS,
+        ),
+    ],
+    ids=[
+        "business_glossary",
+        "data_quality_rules",
+        "governance_issues",
+        "access_exceptions",
+        "ai_use_cases",
+    ],
+)
+def test_csv_register_rows_have_exact_field_count(
+    register_name: str,
+    file_path: Path,
+    expected_columns: set[str],
+) -> None:
+    """Reject CSV rows with missing or surplus fields."""
+
+    assert file_path.exists(), f"{register_name} does not exist: {file_path}"
+
+    with file_path.open(
+        "r",
+        encoding="utf-8-sig",
+        newline="",
+    ) as file:
+        rows = list(csv.reader(file))
+
+    assert rows, f"{register_name} is empty."
+
+    header = rows[0]
+
+    assert len(header) == len(expected_columns), (
+        f"{register_name} header contains "
+        f"{len(header)} fields instead of "
+        f"{len(expected_columns)}."
+    )
+
+    assert len(header) == len(set(header)), (
+        f"{register_name} contains duplicate " "column names."
+    )
+
+    assert set(header) == expected_columns, (
+        f"{register_name} does not contain " "the expected columns."
+    )
+
+    for line_number, row in enumerate(
+        rows[1:],
+        start=2,
+    ):
+        assert len(row) == len(header), (
+            f"{register_name}, line {line_number}, "
+            f"contains {len(row)} fields instead of "
+            f"{len(header)}."
+        )
