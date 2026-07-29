@@ -1,4 +1,5 @@
 import csv
+from datetime import date
 from pathlib import Path
 
 import pytest
@@ -14,6 +15,10 @@ RACI_FILE = PROJECT_ROOT / "roles" / "raci_matrix.csv"
 GLOSSARY_FILE = PROJECT_ROOT / "glossary" / "business_glossary.csv"
 
 DATA_QUALITY_RULES_FILE = PROJECT_ROOT / "data" / "data_quality_rules.csv"
+
+GOVERNANCE_ISSUES_FILE = PROJECT_ROOT / "data" / "governance_issues.csv"
+
+ACCESS_EXCEPTIONS_FILE = PROJECT_ROOT / "data" / "access_exceptions.csv"
 
 EXPECTED_DOMAIN_FILES = {
     "customer_domain.yaml",
@@ -174,6 +179,187 @@ VALID_DATA_QUALITY_RULE_STATUSES = {
     "Retired",
 }
 
+EXPECTED_GOVERNANCE_ISSUE_COLUMNS = {
+    "issue_id",
+    "issue_title",
+    "issue_category",
+    "primary_domain",
+    "additional_domains",
+    "date_identified",
+    "issue_source",
+    "affected_data_element",
+    "critical_data_element",
+    "data_classification",
+    "severity",
+    "data_owner",
+    "data_steward",
+    "remediation_owner",
+    "root_cause",
+    "containment_action",
+    "remediation_plan",
+    "target_date",
+    "status",
+    "related_rule_id",
+    "last_review_date",
+    "next_review_date",
+    "closure_date",
+}
+
+VALID_ISSUE_DOMAINS = {
+    "Customer",
+    "Policy",
+    "Claims",
+    "Healthcare Provider",
+    "Finance",
+    "Enterprise",
+}
+
+VALID_ISSUE_CATEGORIES = {
+    "Ownership and Accountability",
+    "Business Definition and Metadata",
+    "Data Quality",
+    "Data Classification and Handling",
+    "Data Access",
+    "Data Lifecycle",
+    "Data Lineage and Integration",
+    "Reporting and Analytics",
+    "Artificial Intelligence",
+    "Third-Party Data",
+    "Governance Process and Evidence",
+}
+
+VALID_ISSUE_SEVERITIES = {
+    "Low",
+    "Medium",
+    "High",
+}
+
+VALID_ISSUE_STATUSES = {
+    "Identified",
+    "Under Assessment",
+    "Remediation Agreed",
+    "In Progress",
+    "Blocked",
+    "Awaiting Validation",
+    "Awaiting Closure Approval",
+    "Closed",
+    "Risk Accepted",
+    "Cancelled",
+    "Reopened",
+}
+
+VALID_ROOT_CAUSES = {
+    "Ownership gap",
+    "Stewardship gap",
+    "Definition ambiguity",
+    "Incomplete metadata",
+    "Process design",
+    "Manual input error",
+    "Training gap",
+    "System configuration",
+    "Software defect",
+    "Interface failure",
+    "Transformation logic",
+    "Reference-data failure",
+    "Access-control failure",
+    "Control design weakness",
+    "Control execution failure",
+    "Change-management failure",
+    "Third-party failure",
+    "Legacy-data limitation",
+    "Resource constraint",
+    "Unapproved workaround",
+    "Unknown",
+}
+
+EXPECTED_ACCESS_EXCEPTION_COLUMNS = {
+    "exception_id",
+    "exception_title",
+    "request_date",
+    "user_or_account",
+    "access_recipient_type",
+    "line_manager_or_sponsor",
+    "data_domain",
+    "system_or_platform",
+    "data_classification",
+    "access_level",
+    "business_purpose",
+    "standard_access_gap",
+    "start_date",
+    "expiry_date",
+    "risk_level",
+    "segregation_conflict",
+    "external_access",
+    "production_data_outside_production",
+    "compensating_controls",
+    "permanent_remediation",
+    "data_owner",
+    "data_steward",
+    "data_custodian",
+    "status",
+    "renewal_count",
+    "last_review_date",
+    "next_review_date",
+    "revocation_date",
+    "closure_date",
+}
+
+VALID_ACCESS_RECIPIENT_TYPES = {
+    "Employee",
+    "Contractor",
+    "Service Account",
+}
+
+VALID_ACCESS_LEVELS = {
+    "Read",
+    "Create",
+    "Amend",
+    "Approve",
+    "Export",
+    "Administer",
+}
+
+VALID_ACCESS_RISK_LEVELS = {
+    "Low",
+    "Medium",
+    "High",
+}
+
+VALID_ACCESS_EXCEPTION_BOOLEAN_VALUES = {
+    "Yes",
+    "No",
+}
+
+VALID_ACCESS_EXCEPTION_STATUSES = {
+    "Draft",
+    "Submitted",
+    "Information Required",
+    "Under Assessment",
+    "Specialist Review",
+    "Awaiting Approval",
+    "Approved",
+    "Approved with Conditions",
+    "Rejected",
+    "Implemented",
+    "Active",
+    "Renewal Under Review",
+    "Expired",
+    "Revocation Pending",
+    "Closed",
+    "Cancelled",
+}
+
+ACCESS_STATUSES_REQUIRING_REVIEW = {
+    "Specialist Review",
+    "Approved",
+    "Approved with Conditions",
+    "Implemented",
+    "Active",
+    "Renewal Under Review",
+    "Expired",
+    "Revocation Pending",
+}
+
 EXPECTED_STANDARD_FILES = {
     "metadata_standard.md",
     "data_quality_standard.md",
@@ -304,6 +490,80 @@ def load_data_quality_rule_rows() -> tuple[
         assert (
             reader.fieldnames is not None
         ), "The Data Quality Rules Register has no header."
+
+        columns = [column.strip() for column in reader.fieldnames]
+
+        rows = []
+
+        for raw_row in reader:
+            cleaned_row = {
+                key.strip(): value.strip()
+                for key, value in raw_row.items()
+                if key is not None
+            }
+
+            rows.append(cleaned_row)
+
+    return columns, rows
+
+
+def load_governance_issue_rows() -> tuple[
+    list[str],
+    list[dict[str, str]],
+]:
+    """Load the Governance Issues Register."""
+
+    assert (
+        GOVERNANCE_ISSUES_FILE.exists()
+    ), "The Governance Issues Register does not exist."
+
+    with GOVERNANCE_ISSUES_FILE.open(
+        "r",
+        encoding="utf-8-sig",
+        newline="",
+    ) as file:
+        reader = csv.DictReader(file)
+
+        assert (
+            reader.fieldnames is not None
+        ), "The Governance Issues Register has no header."
+
+        columns = [column.strip() for column in reader.fieldnames]
+
+        rows = []
+
+        for raw_row in reader:
+            cleaned_row = {
+                key.strip(): value.strip()
+                for key, value in raw_row.items()
+                if key is not None
+            }
+
+            rows.append(cleaned_row)
+
+    return columns, rows
+
+
+def load_access_exception_rows() -> tuple[
+    list[str],
+    list[dict[str, str]],
+]:
+    """Load the Data Access Exceptions Register."""
+
+    assert (
+        ACCESS_EXCEPTIONS_FILE.exists()
+    ), "The Data Access Exceptions Register does not exist."
+
+    with ACCESS_EXCEPTIONS_FILE.open(
+        "r",
+        encoding="utf-8-sig",
+        newline="",
+    ) as file:
+        reader = csv.DictReader(file)
+
+        assert reader.fieldnames is not None, (
+            "The Data Access Exceptions Register " "has no header."
+        )
 
         columns = [column.strip() for column in reader.fieldnames]
 
@@ -1095,4 +1355,551 @@ def test_data_quality_rules_reference_glossary_terms() -> None:
         "The following Data Quality Rule terms are "
         "missing from the business glossary: "
         f"{sorted(missing_terms)}"
+    )
+
+
+def test_governance_issues_have_expected_columns() -> None:
+    """Verify the structure of the issues register."""
+
+    columns, _ = load_governance_issue_rows()
+
+    assert len(columns) == len(set(columns)), (
+        "The Governance Issues Register has " "duplicate column names."
+    )
+
+    assert set(columns) == EXPECTED_GOVERNANCE_ISSUE_COLUMNS
+
+
+def test_governance_issues_contain_ten_issues() -> None:
+    """Verify that the register contains ten issues."""
+
+    _, rows = load_governance_issue_rows()
+
+    assert len(rows) == 10, (
+        "The Governance Issues Register must " "contain exactly 10 issues."
+    )
+
+
+def test_governance_issue_ids_are_unique_and_sequential() -> None:
+    """Verify unique sequential issue identifiers."""
+
+    _, rows = load_governance_issue_rows()
+
+    actual_ids = [row["issue_id"] for row in rows]
+
+    expected_ids = [
+        f"ISSUE-2026-{number:03d}"
+        for number in range(
+            1,
+            len(rows) + 1,
+        )
+    ]
+
+    assert len(actual_ids) == len(
+        set(actual_ids)
+    ), "The register contains duplicate Issue IDs."
+
+    assert actual_ids == expected_ids, (
+        "Issue IDs must be sequential and use " "the ISSUE-2026-001 format."
+    )
+
+
+def test_governance_issues_have_complete_metadata() -> None:
+    """Verify that mandatory issue metadata is populated."""
+
+    _, rows = load_governance_issue_rows()
+
+    optional_fields = {
+        "additional_domains",
+        "related_rule_id",
+        "next_review_date",
+        "closure_date",
+    }
+
+    required_fields = EXPECTED_GOVERNANCE_ISSUE_COLUMNS - optional_fields
+
+    for row_number, row in enumerate(
+        rows,
+        start=2,
+    ):
+        empty_fields = [field for field in required_fields if not row.get(field)]
+
+        assert not empty_fields, (
+            f"Governance issue row {row_number} "
+            f"is missing values in: {sorted(empty_fields)}"
+        )
+
+
+def test_governance_issues_use_controlled_values() -> None:
+    """Verify controlled issue metadata values."""
+
+    _, rows = load_governance_issue_rows()
+
+    for row in rows:
+        assert (
+            row["primary_domain"] in VALID_ISSUE_DOMAINS
+        ), f"{row['issue_id']} has an invalid primary domain."
+
+        additional_domain = row["additional_domains"]
+
+        if additional_domain:
+            assert additional_domain in VALID_ISSUE_DOMAINS, (
+                f"{row['issue_id']} has an invalid " "additional domain."
+            )
+
+            assert additional_domain != row["primary_domain"], (
+                f"{row['issue_id']} repeats its primary domain "
+                "as an additional domain."
+            )
+
+        assert (
+            row["issue_category"] in VALID_ISSUE_CATEGORIES
+        ), f"{row['issue_id']} has an invalid issue category."
+
+        assert (
+            row["severity"] in VALID_ISSUE_SEVERITIES
+        ), f"{row['issue_id']} has an invalid severity."
+
+        assert (
+            row["status"] in VALID_ISSUE_STATUSES
+        ), f"{row['issue_id']} has an invalid status."
+
+        assert (
+            row["root_cause"] in VALID_ROOT_CAUSES
+        ), f"{row['issue_id']} has an invalid root cause."
+
+        assert row["critical_data_element"] in VALID_CRITICAL_ELEMENT_VALUES, (
+            f"{row['issue_id']} has an invalid " "critical-data-element value."
+        )
+
+        assert row["data_classification"] in VALID_SENSITIVITY_VALUES, (
+            f"{row['issue_id']} has an invalid " "data classification."
+        )
+
+
+def test_governance_issue_dates_are_valid() -> None:
+    """Verify ISO dates and logical date ordering."""
+
+    _, rows = load_governance_issue_rows()
+
+    date_fields = {
+        "date_identified",
+        "target_date",
+        "last_review_date",
+        "next_review_date",
+        "closure_date",
+    }
+
+    for row in rows:
+        parsed_dates = {}
+
+        for field in date_fields:
+            value = row[field]
+
+            if value:
+                try:
+                    parsed_dates[field] = date.fromisoformat(value)
+                except ValueError as error:
+                    raise AssertionError(
+                        f"{row['issue_id']} has an invalid " f"{field}: {value}"
+                    ) from error
+
+        identified = parsed_dates["date_identified"]
+        target = parsed_dates["target_date"]
+        last_review = parsed_dates["last_review_date"]
+
+        assert target >= identified, (
+            f"{row['issue_id']} has a target date " "before its identification date."
+        )
+
+        assert last_review >= identified, (
+            f"{row['issue_id']} has a last review date "
+            "before its identification date."
+        )
+
+        if "next_review_date" in parsed_dates:
+            assert parsed_dates["next_review_date"] >= last_review, (
+                f"{row['issue_id']} has a next review date "
+                "before its last review date."
+            )
+
+        if "closure_date" in parsed_dates:
+            assert parsed_dates["closure_date"] >= identified, (
+                f"{row['issue_id']} has a closure date "
+                "before its identification date."
+            )
+
+
+def test_governance_issue_closure_fields_match_status() -> None:
+    """Verify that closure and review dates match issue status."""
+
+    _, rows = load_governance_issue_rows()
+
+    for row in rows:
+        if row["status"] == "Closed":
+            assert row["closure_date"], (
+                f"{row['issue_id']} is Closed but " "has no closure date."
+            )
+
+            assert not row["next_review_date"], (
+                f"{row['issue_id']} is Closed but " "still has a next review date."
+            )
+        else:
+            assert not row["closure_date"], (
+                f"{row['issue_id']} is not Closed but " "has a closure date."
+            )
+
+            assert row["next_review_date"], (
+                f"{row['issue_id']} is open but " "has no next review date."
+            )
+
+
+def test_governance_issues_reference_valid_quality_rules() -> None:
+    """Verify related Data Quality Rule references."""
+
+    _, issue_rows = load_governance_issue_rows()
+    _, rule_rows = load_data_quality_rule_rows()
+
+    valid_rule_ids = {row["rule_id"] for row in rule_rows}
+
+    invalid_references = {
+        row["related_rule_id"]
+        for row in issue_rows
+        if row["related_rule_id"] and row["related_rule_id"] not in valid_rule_ids
+    }
+
+    assert not invalid_references, (
+        "The following related Data Quality Rules "
+        f"do not exist: {sorted(invalid_references)}"
+    )
+
+
+def test_governance_issue_elements_exist_in_glossary() -> None:
+    """Verify that affected data elements are governed terms."""
+
+    _, issue_rows = load_governance_issue_rows()
+    _, glossary_rows = load_glossary_rows()
+
+    glossary_terms = {row["business_term"].casefold() for row in glossary_rows}
+
+    missing_terms = {
+        row["affected_data_element"]
+        for row in issue_rows
+        if row["affected_data_element"].casefold() not in glossary_terms
+    }
+
+    assert not missing_terms, (
+        "The following affected data elements are "
+        "missing from the business glossary: "
+        f"{sorted(missing_terms)}"
+    )
+
+
+def test_governance_issues_cover_all_operational_domains() -> None:
+    """Verify issue coverage across all operational domains."""
+
+    _, rows = load_governance_issue_rows()
+
+    represented_domains = {row["primary_domain"] for row in rows}
+
+    represented_domains.update(
+        row["additional_domains"] for row in rows if row["additional_domains"]
+    )
+
+    missing_domains = REQUIRED_OPERATIONAL_DOMAINS - represented_domains
+
+    assert not missing_domains, (
+        "The issues register does not cover these "
+        f"operational domains: {sorted(missing_domains)}"
+    )
+
+
+def test_access_exceptions_have_expected_columns() -> None:
+    """Verify the structure of the exceptions register."""
+
+    columns, _ = load_access_exception_rows()
+
+    assert len(columns) == len(set(columns)), (
+        "The Access Exceptions Register has " "duplicate column names."
+    )
+
+    assert set(columns) == EXPECTED_ACCESS_EXCEPTION_COLUMNS
+
+
+def test_access_exceptions_contain_eight_records() -> None:
+    """Verify that the register contains eight exceptions."""
+
+    _, rows = load_access_exception_rows()
+
+    assert len(rows) == 8, (
+        "The Access Exceptions Register must " "contain exactly 8 exceptions."
+    )
+
+
+def test_access_exception_ids_are_unique_and_sequential() -> None:
+    """Verify unique sequential exception identifiers."""
+
+    _, rows = load_access_exception_rows()
+
+    actual_ids = [row["exception_id"] for row in rows]
+
+    expected_ids = [
+        f"ACCESS-EXC-2026-{number:03d}"
+        for number in range(
+            1,
+            len(rows) + 1,
+        )
+    ]
+
+    assert len(actual_ids) == len(
+        set(actual_ids)
+    ), "The register contains duplicate Exception IDs."
+
+    assert actual_ids == expected_ids, (
+        "Exception IDs must be sequential and use " "the ACCESS-EXC-2026-001 format."
+    )
+
+
+def test_access_exceptions_have_complete_metadata() -> None:
+    """Verify that mandatory exception metadata is populated."""
+
+    _, rows = load_access_exception_rows()
+
+    optional_fields = {
+        "next_review_date",
+        "revocation_date",
+        "closure_date",
+    }
+
+    required_fields = EXPECTED_ACCESS_EXCEPTION_COLUMNS - optional_fields
+
+    for row_number, row in enumerate(
+        rows,
+        start=2,
+    ):
+        empty_fields = [field for field in required_fields if not row.get(field)]
+
+        assert not empty_fields, (
+            f"Access exception row {row_number} "
+            f"is missing values in: {sorted(empty_fields)}"
+        )
+
+
+def test_access_exceptions_use_controlled_values() -> None:
+    """Verify controlled exception metadata values."""
+
+    _, rows = load_access_exception_rows()
+
+    for row in rows:
+        exception_id = row["exception_id"]
+
+        assert row["access_recipient_type"] in VALID_ACCESS_RECIPIENT_TYPES, (
+            f"{exception_id} has an invalid " "access-recipient type."
+        )
+
+        assert (
+            row["data_domain"] in REQUIRED_OPERATIONAL_DOMAINS
+        ), f"{exception_id} has an invalid data domain."
+
+        assert row["data_classification"] in VALID_SENSITIVITY_VALUES, (
+            f"{exception_id} has an invalid " "data classification."
+        )
+
+        assert (
+            row["access_level"] in VALID_ACCESS_LEVELS
+        ), f"{exception_id} has an invalid access level."
+
+        assert (
+            row["risk_level"] in VALID_ACCESS_RISK_LEVELS
+        ), f"{exception_id} has an invalid risk level."
+
+        assert (
+            row["status"] in VALID_ACCESS_EXCEPTION_STATUSES
+        ), f"{exception_id} has an invalid status."
+
+        boolean_fields = {
+            "segregation_conflict",
+            "external_access",
+            "production_data_outside_production",
+        }
+
+        for field in boolean_fields:
+            assert row[field] in VALID_ACCESS_EXCEPTION_BOOLEAN_VALUES, (
+                f"{exception_id} has an invalid " f"{field} value."
+            )
+
+
+def test_access_exception_dates_are_valid() -> None:
+    """Verify ISO dates and logical date ordering."""
+
+    _, rows = load_access_exception_rows()
+
+    date_fields = {
+        "request_date",
+        "start_date",
+        "expiry_date",
+        "last_review_date",
+        "next_review_date",
+        "revocation_date",
+        "closure_date",
+    }
+
+    for row in rows:
+        parsed_dates = {}
+
+        for field in date_fields:
+            value = row[field]
+
+            if value:
+                try:
+                    parsed_dates[field] = date.fromisoformat(value)
+                except ValueError as error:
+                    raise AssertionError(
+                        f"{row['exception_id']} has an " f"invalid {field}: {value}"
+                    ) from error
+
+        request_date = parsed_dates["request_date"]
+        start_date = parsed_dates["start_date"]
+        expiry_date = parsed_dates["expiry_date"]
+        last_review_date = parsed_dates["last_review_date"]
+
+        assert start_date >= request_date, (
+            f"{row['exception_id']} starts before " "the request date."
+        )
+
+        assert expiry_date >= start_date, (
+            f"{row['exception_id']} expires before " "the start date."
+        )
+
+        assert last_review_date >= request_date, (
+            f"{row['exception_id']} has a last review " "before the request date."
+        )
+
+        if "next_review_date" in parsed_dates:
+            assert parsed_dates["next_review_date"] >= last_review_date, (
+                f"{row['exception_id']} has a next review " "before the last review."
+            )
+
+        if "revocation_date" in parsed_dates:
+            assert parsed_dates["revocation_date"] >= start_date, (
+                f"{row['exception_id']} was revoked " "before access started."
+            )
+
+        if "closure_date" in parsed_dates:
+            assert parsed_dates["closure_date"] >= request_date, (
+                f"{row['exception_id']} was closed " "before it was requested."
+            )
+
+            if "revocation_date" in parsed_dates:
+                assert (
+                    parsed_dates["closure_date"] >= parsed_dates["revocation_date"]
+                ), (f"{row['exception_id']} was closed " "before access was revoked.")
+
+
+def test_access_exception_dates_match_status() -> None:
+    """Verify lifecycle dates against exception status."""
+
+    _, rows = load_access_exception_rows()
+
+    for row in rows:
+        exception_id = row["exception_id"]
+        status = row["status"]
+
+        if status == "Closed":
+            assert row["revocation_date"], (
+                f"{exception_id} is Closed but has " "no revocation date."
+            )
+
+            assert row["closure_date"], (
+                f"{exception_id} is Closed but has " "no closure date."
+            )
+
+            assert not row["next_review_date"], (
+                f"{exception_id} is Closed but still " "has a next review date."
+            )
+
+        else:
+            assert not row["closure_date"], (
+                f"{exception_id} is not Closed but " "has a closure date."
+            )
+
+        if status == "Rejected":
+            assert not row["next_review_date"], (
+                f"{exception_id} is Rejected but has " "a next review date."
+            )
+
+            assert not row["revocation_date"], (
+                f"{exception_id} is Rejected but has " "a revocation date."
+            )
+
+        if status in ACCESS_STATUSES_REQUIRING_REVIEW:
+            assert row["next_review_date"], (
+                f"{exception_id} requires ongoing review "
+                "but has no next review date."
+            )
+
+
+def test_access_exception_renewal_counts_are_valid() -> None:
+    """Verify renewal counts and renewal status."""
+
+    _, rows = load_access_exception_rows()
+
+    for row in rows:
+        value = row["renewal_count"]
+
+        try:
+            renewal_count = int(value)
+        except ValueError as error:
+            raise AssertionError(
+                f"{row['exception_id']} has an invalid " f"renewal count: {value}"
+            ) from error
+
+        assert renewal_count >= 0, (
+            f"{row['exception_id']} has a negative " "renewal count."
+        )
+
+        if row["status"] == "Renewal Under Review":
+            assert renewal_count >= 1, (
+                f"{row['exception_id']} is under renewal "
+                "review but has no prior renewal."
+            )
+
+
+def test_high_risk_access_exceptions_have_controls() -> None:
+    """Verify controls for high-risk exceptions."""
+
+    _, rows = load_access_exception_rows()
+
+    for row in rows:
+        exception_id = row["exception_id"]
+
+        if row["risk_level"] == "High" and row["status"] != "Rejected":
+            assert row["compensating_controls"].casefold() != "none proposed", (
+                f"{exception_id} is High risk but has " "no compensating controls."
+            )
+
+        if row["segregation_conflict"] == "Yes":
+            assert row["risk_level"] == "High", (
+                f"{exception_id} has a segregation " "conflict but is not High risk."
+            )
+
+        if row["production_data_outside_production"] == "Yes":
+            assert row["risk_level"] == "High", (
+                f"{exception_id} uses production data "
+                "outside production but is not High risk."
+            )
+
+
+def test_access_exceptions_cover_all_operational_domains() -> None:
+    """Verify coverage across all operational domains."""
+
+    _, rows = load_access_exception_rows()
+
+    represented_domains = {row["data_domain"] for row in rows}
+
+    missing_domains = REQUIRED_OPERATIONAL_DOMAINS - represented_domains
+
+    assert not missing_domains, (
+        "The Access Exceptions Register does not cover "
+        f"these domains: {sorted(missing_domains)}"
     )
