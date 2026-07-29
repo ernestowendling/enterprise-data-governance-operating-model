@@ -349,6 +349,28 @@ Renders the complete controlled-document library directly inside the portal.
 
 ---
 
+## Portal Demonstration
+
+### Executive Governance Overview
+
+The executive dashboard consolidates governance coverage, active controls, material issues, access exceptions and AI-readiness indicators.
+
+![Executive governance overview](docs/screenshots/executive-overview.png)
+
+### Governance Issue Management
+
+The issue-management page supports risk-based filtering and provides record-level visibility into ownership, root cause, containment and remediation.
+
+![Governance issues register](docs/screenshots/governance-issues.png)
+
+### AI Governance Assessment
+
+The AI-use-case page connects business purpose and risk classification with data readiness, human oversight, approval decisions and accountable roles.
+
+![AI use case assessment](docs/screenshots/ai-use-cases.png)
+
+---
+
 ## Application Architecture
 
 ```mermaid
