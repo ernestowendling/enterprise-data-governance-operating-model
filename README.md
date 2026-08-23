@@ -1,3 +1,6 @@
+Project status: Active
+Last validated: August 2026
+
 # Enterprise Data Governance Operating Model
 
 A portfolio implementation of a DAMA-aligned data-governance operating model for a fictional regulated Swiss health insurer.
