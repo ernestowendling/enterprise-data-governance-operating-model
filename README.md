@@ -550,7 +550,7 @@ enterprise-data-governance-operating-model/
 ### 1. Clone the repository
 
 ```powershell
-git clone <repository-url>
+git clone https://github.com/ernestowendling/enterprise-data-governance-operating-model.git
 cd enterprise-data-governance-operating-model
 ```
 
@@ -650,6 +650,12 @@ Current limitations include:
 
 ---
 
+## Implementation boundary
+
+The quality-rule register documents checks and thresholds. Repository tests validate governance records and their relationships; they do not execute those quality rules against live operational data. GitHub Actions validation is configured in [governance-validation.yml](.github/workflows/governance-validation.yml); consult the run history for current results.
+
+The complementary [AI Governance & Risk Framework](https://github.com/ernestowendling/enterprise-ai-governance-risk-framework) focuses on AI classification, lifecycle gates and model-monitoring demonstrations. This repository focuses on data ownership, definitions and governance registers.
+
 ## Roadmap
 
 Potential production extensions include:
@@ -663,7 +669,7 @@ Potential production extensions include:
 - immutable decision and audit logging;
 - issue ageing and SLA reporting;
 - model-risk and EU AI Act control mapping;
-- CI/CD validation through GitHub Actions;
+- deployment automation beyond the existing GitHub Actions validation workflow;
 - cloud deployment.
 
 ---
